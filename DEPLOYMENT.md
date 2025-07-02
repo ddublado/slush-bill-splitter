@@ -1,71 +1,66 @@
-# Deployment Instructions
+# Deployment Status
 
 ## Frontend (Vercel)
 
 The frontend has been successfully deployed to Vercel. You can access it at:
 
-https://slush-bill-splitter-2uu8df9g8-dominic-joaquin-dublados-projects.vercel.app
+https://slush-bill-splitter-n33tp529o-dominic-joaquin-dublados-projects.vercel.app
 
 ## Backend (Railway)
 
-To deploy the backend to Railway, follow these steps:
+The backend has been successfully deployed to Railway. You can access it at:
 
-1. Sign up for a Railway account at https://railway.app/ if you don't have one already.
+https://split-bill-interface-production.up.railway.app
 
-2. Install the Railway CLI:
-   ```
-   npm i -g @railway/cli
-   ```
+## Environment Variables
 
-3. Login to Railway:
-   ```
-   railway login
-   ```
+The frontend has been configured with the following environment variable:
 
-4. Navigate to the backend directory:
-   ```
-   cd backend
-   ```
+- `NEXT_PUBLIC_API_URL`: https://split-bill-interface-production.up.railway.app
 
-5. Initialize a new Railway project:
-   ```
-   railway init
-   ```
+## Testing the Deployment
 
-6. Deploy the backend:
-   ```
-   railway up
-   ```
+1. Open the frontend URL in a browser: https://slush-bill-splitter-n33tp529o-dominic-joaquin-dublados-projects.vercel.app
+2. Try to create a bill split with multiple participants.
+3. Validate the split to ensure the backend API is working correctly.
 
-7. Once deployed, get the URL of your backend service:
+## Redeployment Instructions
+
+### Frontend (Vercel)
+
+To redeploy the frontend after making changes:
+
+1. Push your changes to GitHub:
    ```
-   railway domain
+   git add .
+   git commit -m "Your commit message"
+   git push
    ```
 
-8. Update the frontend environment variable with the backend URL:
-   - Go to the Vercel dashboard
-   - Navigate to your project settings
-   - Go to the "Environment Variables" section
-   - Add a new variable: `NEXT_PUBLIC_API_URL` with the value of your Railway backend URL
+2. Vercel will automatically redeploy the frontend.
 
-## Connecting Frontend to Backend
-
-After deploying both the frontend and backend, you need to update the frontend to use the deployed backend API:
-
-1. In the Vercel dashboard, go to your project settings.
-2. Navigate to the "Environment Variables" section.
-3. Add or update the `NEXT_PUBLIC_API_URL` environment variable with your Railway backend URL.
-4. Redeploy the frontend to apply the changes:
+3. Alternatively, you can manually redeploy using the Vercel CLI:
    ```
    cd frontend
    vercel --prod
    ```
 
-## Testing the Deployment
+### Backend (Railway)
 
-1. Open your deployed frontend URL in a browser.
-2. Try to create a bill split with multiple participants.
-3. Validate the split to ensure the backend API is working correctly.
+To redeploy the backend after making changes:
+
+1. Push your changes to GitHub:
+   ```
+   git add .
+   git commit -m "Your commit message"
+   git push
+   ```
+
+2. Redeploy using the Railway CLI:
+   ```
+   cd backend
+   npx @railway/cli up
+   ```
 
 ## Troubleshooting
 

@@ -2,6 +2,11 @@
 
 A web application that allows users to manually assign amounts to each participant in a group bill splitting scenario.
 
+## Live Demo
+
+- **Frontend**: [https://slush-bill-splitter-n33tp529o-dominic-joaquin-dublados-projects.vercel.app](https://slush-bill-splitter-n33tp529o-dominic-joaquin-dublados-projects.vercel.app)
+- **Backend API**: [https://split-bill-interface-production.up.railway.app](https://split-bill-interface-production.up.railway.app)
+
 ## Overview
 
 This application was built for Slush LLC as part of a full stack mobile developer job test. It provides a user-friendly interface for splitting bills among multiple participants, with real-time validation to ensure the split is accurate.
@@ -80,18 +85,10 @@ The application follows a client-server architecture:
 ## Deployment
 
 ### Frontend
-The frontend is deployed on Vercel. To deploy your own instance:
-
-1. Push your code to GitHub
-2. Import the project in Vercel
-3. Configure the build settings and deploy
+The frontend is deployed on Vercel at [https://slush-bill-splitter-n33tp529o-dominic-joaquin-dublados-projects.vercel.app](https://slush-bill-splitter-n33tp529o-dominic-joaquin-dublados-projects.vercel.app).
 
 ### Backend
-The backend is deployed on Railway. To deploy your own instance:
-
-1. Push your code to GitHub
-2. Import the project in Railway
-3. Configure the environment variables and deploy
+The backend is deployed on Railway at [https://split-bill-interface-production.up.railway.app](https://split-bill-interface-production.up.railway.app).
 
 ## API Documentation
 
