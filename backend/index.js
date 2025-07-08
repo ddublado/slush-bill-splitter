@@ -13,6 +13,45 @@ function validateSplit(total, splits) {
   return parseFloat(sum.toFixed(2)) === parseFloat(total.toFixed(2));
 }
 
+// Root route - API information
+fastify.get('/', async (request, reply) => {
+  return {
+    name: 'Slush Bill Splitter API',
+    version: '1.0.0',
+    description: 'Backend API for validating bill splits',
+    endpoints: {
+      'POST /api/validate-split': {
+        description: 'Validate if a bill split is correct',
+        example: {
+          request: {
+            total: 125.00,
+            splits: {
+              "Alice": 60,
+              "Bob": 65
+            }
+          },
+          response: {
+            success: true,
+            message: "Split is valid.",
+            difference: 0
+          }
+        }
+      }
+    },
+    status: 'running',
+    timestamp: new Date().toISOString()
+  };
+});
+
+// Health check endpoint
+fastify.get('/health', async (request, reply) => {
+  return {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  };
+});
+
 // POST endpoint to validate bill splits
 fastify.post('/api/validate-split', async (request, reply) => {
   const { total, splits } = request.body;
