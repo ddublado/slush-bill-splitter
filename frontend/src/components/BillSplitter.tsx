@@ -17,6 +17,7 @@ const BillSplitter = () => {
   const [validationMessage, setValidationMessage] = useState<string>('');
   const [validationStatus, setValidationStatus] = useState<'success' | 'error' | 'warning' | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isComplete, setIsComplete] = useState<boolean>(false);
 
   // API URL from environment variable or fallback to localhost
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -112,6 +113,19 @@ const BillSplitter = () => {
     }));
   };
 
+  // Reset the form for a new split
+  const startNewSplit = () => {
+    setTotalAmount('');
+    setParticipants([
+      { id: '1', name: 'Person 1', amount: 0 },
+      { id: '2', name: 'Person 2', amount: 0 },
+    ]);
+    setValidationMessage('');
+    setValidationStatus(null);
+    setIsComplete(false);
+    setIsLoading(false);
+  };
+
   // Validate the split with the backend
   const validateSplit = async () => {
     if (totalAmount === '') {
@@ -130,18 +144,15 @@ const BillSplitter = () => {
     const numTotal = parseFloat(totalAmount.toString());
     const diff = parseFloat((numTotal - currentSum).toFixed(2));
     
-    if (diff === 0) {
-      // If the split is balanced locally, proceed without waiting for API
-      setValidationMessage('Split is balanced!');
-      setValidationStatus('success');
-    } else {
+    if (diff !== 0) {
       setValidationMessage(`Split is not balanced. Difference: ${formatCurrency(Math.abs(diff))}`);
       setValidationStatus('error');
       return;
     }
 
-    // Try API validation, but don't block the user experience
+    // If we get here, the split is balanced
     setIsLoading(true);
+    
     try {
       const splits: Record<string, number> = {};
       participants.forEach(p => {
@@ -162,15 +173,28 @@ const BillSplitter = () => {
       const data = await response.json();
       
       if (data.success) {
-        setValidationMessage('Split is valid! Everyone has been assigned the correct amount.');
+        setValidationMessage('🎉 Success! Your bill has been split perfectly. Here\'s the breakdown:');
         setValidationStatus('success');
+        
+        // Show success message for a moment, then show completion
+        setTimeout(() => {
+          setValidationMessage(`✅ Split Complete!\n\nTotal: ${formatCurrency(numTotal)}\n${participants.map(p => `${p.name}: ${formatCurrency(p.amount)}`).join('\n')}\n\nYou can now share this breakdown with your group!`);
+          setIsComplete(true);
+        }, 1500);
       } else {
-        setValidationMessage(`Split is invalid. ${data.message}`);
+        setValidationMessage(`Split validation failed: ${data.message}`);
         setValidationStatus('error');
       }
     } catch (error) {
       console.log('API validation failed, using local validation instead:', error);
-      // We already set the validation message above, so we don't need to show an error
+      // Still show success since local validation passed
+      setValidationMessage('🎉 Success! Your bill has been split perfectly. Here\'s the breakdown:');
+      setValidationStatus('success');
+      
+             setTimeout(() => {
+         setValidationMessage(`✅ Split Complete!\n\nTotal: ${formatCurrency(numTotal)}\n${participants.map(p => `${p.name}: ${formatCurrency(p.amount)}`).join('\n')}\n\nYou can now share this breakdown with your group!`);
+         setIsComplete(true);
+       }, 1500);
     } finally {
       setIsLoading(false);
     }
@@ -287,7 +311,7 @@ const BillSplitter = () => {
           }`}>
             <div className="flex">
               <div className="ml-2">
-                <p className="text-sm font-medium">
+                <p className="text-sm font-medium whitespace-pre-line">
                   {validationMessage}
                 </p>
               </div>
@@ -310,13 +334,22 @@ const BillSplitter = () => {
           </p>
         </div>
         <div className="action-container">
-          <button
-            className="primary-btn"
-            onClick={validateSplit}
-            disabled={isLoading}
-          >
-            {isLoading ? "Processing..." : "Continue"}
-          </button>
+          {isComplete ? (
+            <button
+              className="primary-btn"
+              onClick={startNewSplit}
+            >
+              Start New Split
+            </button>
+          ) : (
+            <button
+              className="primary-btn"
+              onClick={validateSplit}
+              disabled={isLoading}
+            >
+              {isLoading ? "Processing..." : "Continue"}
+            </button>
+          )}
         </div>
       </div>
     </div>
