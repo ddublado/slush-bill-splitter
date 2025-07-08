@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaUserPlus, FaTrash, FaEquals } from 'react-icons/fa';
-import { MdOutlineSplitscreen } from 'react-icons/md';
 
 interface Participant {
   id: string;
@@ -35,7 +33,8 @@ const BillSplitter = () => {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
-    }).format(value);
+      maximumFractionDigits: 2,
+    }).format(value).replace('$', '');
   };
 
   // Handle total amount change
@@ -86,9 +85,9 @@ const BillSplitter = () => {
   };
 
   // Remove a participant
-  const removeParticipant = (id: string) => {
+  const removeParticipant = () => {
     if (participants.length > 1) {
-      setParticipants(participants.filter(p => p.id !== id));
+      setParticipants(participants.slice(0, -1));
     }
   };
 
@@ -127,6 +126,21 @@ const BillSplitter = () => {
       return;
     }
 
+    // Local validation as fallback
+    const numTotal = parseFloat(totalAmount.toString());
+    const diff = parseFloat((numTotal - currentSum).toFixed(2));
+    
+    if (diff === 0) {
+      // If the split is balanced locally, proceed without waiting for API
+      setValidationMessage('Split is balanced!');
+      setValidationStatus('success');
+    } else {
+      setValidationMessage(`Split is not balanced. Difference: ${formatCurrency(Math.abs(diff))}`);
+      setValidationStatus('error');
+      return;
+    }
+
+    // Try API validation, but don't block the user experience
     setIsLoading(true);
     try {
       const splits: Record<string, number> = {};
@@ -154,9 +168,9 @@ const BillSplitter = () => {
         setValidationMessage(`Split is invalid. ${data.message}`);
         setValidationStatus('error');
       }
-    } catch {
-      setValidationMessage('Error validating split. Please try again.');
-      setValidationStatus('error');
+    } catch (error) {
+      console.log('API validation failed, using local validation instead:', error);
+      // We already set the validation message above, so we don't need to show an error
     } finally {
       setIsLoading(false);
     }
@@ -186,19 +200,14 @@ const BillSplitter = () => {
   }, [totalAmount, currentSum]);
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="mb-6">
-        <label htmlFor="totalAmount" className="block text-sm font-medium text-gray-700 mb-1">
-          Total Amount
-        </label>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span className="text-gray-500 sm:text-sm">$</span>
-          </div>
+    <div className="flex flex-col h-full">
+      {/* Total Amount Input */}
+      <div className="currency-input-container">
+        <div className="flex items-center">
+          <span className="currency-symbol">$</span>
           <input
             type="number"
-            id="totalAmount"
-            className="block w-full pl-7 pr-12 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#f26d21] focus:border-[#f26d21]"
+            className="currency-input text-gray-900"
             placeholder="0.00"
             min="0"
             step="0.01"
@@ -206,48 +215,55 @@ const BillSplitter = () => {
             onChange={handleTotalAmountChange}
           />
         </div>
+        <p className="text-center text-gray-500 mt-1 text-sm">Enter Total Amount</p>
       </div>
 
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-medium">Participants</h3>
-          <div className="flex space-x-2">
+      {/* Participants Section */}
+      <div className="participants-container">
+        {/* Participants Controls */}
+        <div className="participants-header">
+          <div className="people-counter">
             <button
-              onClick={splitEvenly}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f26d21]"
+              onClick={removeParticipant}
+              className="counter-button"
+              disabled={participants.length <= 1}
             >
-              <MdOutlineSplitscreen className="mr-2 h-4 w-4" />
-              Split Evenly
+              <span className="text-xl">−</span>
             </button>
+            <span className="text-gray-800">{participants.length} people</span>
             <button
               onClick={addParticipant}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f26d21]"
+              className="counter-button"
             >
-              <FaUserPlus className="mr-2 h-4 w-4" />
-              Add Person
+              <span className="text-xl">+</span>
             </button>
           </div>
+          <button
+            onClick={splitEvenly}
+            className="split-button"
+          >
+            Split Evenly
+          </button>
         </div>
 
-        <div className="space-y-4">
+        {/* Participants List */}
+        <div className="mt-4 space-y-3">
           {participants.map((participant) => (
-            <div key={participant.id} className="flex items-center space-x-4">
+            <div key={participant.id} className="participant-row">
               <div className="flex-1">
                 <input
                   type="text"
-                  className="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#f26d21] focus:border-[#f26d21] py-2 px-3"
+                  className="participant-input text-gray-900"
                   value={participant.name}
                   onChange={(e) => handleNameChange(participant.id, e.target.value)}
                   placeholder="Name"
                 />
               </div>
-              <div className="w-1/3 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 sm:text-sm">$</span>
-                </div>
+              <div className="flex items-center">
+                <span className="text-[#f26d21] mr-1">$</span>
                 <input
                   type="number"
-                  className="block w-full pl-7 pr-12 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#f26d21] focus:border-[#f26d21]"
+                  className="amount-input text-gray-900"
                   value={participant.amount || ''}
                   onChange={(e) => handleAmountChange(participant.id, e.target.value)}
                   placeholder="0.00"
@@ -255,54 +271,53 @@ const BillSplitter = () => {
                   step="0.01"
                 />
               </div>
-              <button
-                onClick={() => removeParticipant(participant.id)}
-                className="p-2 text-gray-400 hover:text-red-500"
-                disabled={participants.length <= 1}
-              >
-                <FaTrash className="h-4 w-4" />
-              </button>
             </div>
           ))}
         </div>
       </div>
 
-      <div className={`p-4 mb-6 rounded-md ${
-        validationStatus === 'success' ? 'bg-green-50 text-green-800' :
-        validationStatus === 'error' ? 'bg-red-50 text-red-800' :
-        validationStatus === 'warning' ? 'bg-yellow-50 text-yellow-800' :
-        'bg-gray-50 text-gray-800'
-      }`}>
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <FaEquals className="h-5 w-5" />
-          </div>
-          <div className="ml-3">
-            <p className="text-sm font-medium">
-              {validationMessage || 'Enter a total amount to get started'}
-            </p>
+      {/* Validation Message */}
+      {validationMessage && (
+        <div className="status-container">
+          <div className={`p-3 rounded-md ${
+            validationStatus === 'success' ? 'status-success' :
+            validationStatus === 'error' ? 'status-error' :
+            validationStatus === 'warning' ? 'status-warning' :
+            'status-neutral'
+          }`}>
+            <div className="flex">
+              <div className="ml-2">
+                <p className="text-sm font-medium">
+                  {validationMessage}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-sm text-gray-500">
-            Total assigned: {formatCurrency(currentSum)}
+      {/* Summary and Submit */}
+      <div className="mt-auto">
+        <div className="summary-container">
+          <p className="text-sm text-gray-400">
+            Total assigned: <span className="text-gray-700 font-medium">{formatCurrency(currentSum)}</span>
+            {remainingAmount !== 0 && (
+              <>
+                <br />
+                Remaining: <span className={remainingAmount > 0 ? "text-yellow-600" : "text-red-600"}>{formatCurrency(Math.abs(remainingAmount))}</span>
+              </>
+            )}
           </p>
-          {totalAmount !== '' && (
-            <p className="text-sm text-gray-500">
-              Remaining: {formatCurrency(remainingAmount)}
-            </p>
-          )}
         </div>
-        <button
-          onClick={validateSplit}
-          disabled={isLoading}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#f26d21] hover:bg-[#e25d11] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f26d21]"
-        >
-          {isLoading ? 'Validating...' : 'Validate Split'}
-        </button>
+        <div className="action-container">
+          <button
+            className="primary-btn"
+            onClick={validateSplit}
+            disabled={isLoading}
+          >
+            {isLoading ? "Processing..." : "Continue"}
+          </button>
+        </div>
       </div>
     </div>
   );

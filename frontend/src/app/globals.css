@@ -2,23 +2,235 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
-  --primary-color: #f26d21;
-  --primary-hover: #e25d11;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-rgb: 0, 0, 0;
+    --foreground-rgb: 30, 30, 30;
+    --background-rgb: 255, 255, 255;
+    --gradient-start: #f26d21;
+    --gradient-end: #ffa41b;
+  }
+
+  body {
+    color: rgb(var(--foreground-rgb));
+    background: rgb(var(--background-rgb));
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+      Arial, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight text-gray-900;
+  }
+  
+  button, a {
+    cursor: pointer !important;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+@layer components {
+  .primary-btn {
+    @apply inline-flex items-center justify-center rounded-2xl px-8 py-4 text-lg font-bold text-white transition-all hover:shadow-lg hover:translate-y-[-2px];
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  }
+
+  .primary-btn:hover {
+    background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+  }
+
+  .secondary-btn {
+    @apply inline-flex items-center justify-center rounded-2xl border-2 px-8 py-4 text-lg font-bold transition-all hover:shadow-lg hover:translate-y-[-2px];
+    color: var(--gradient-start);
+    background: transparent;
+    border-image: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)) 1;
+  }
+
+  .secondary-btn:hover {
+    background: rgba(242, 109, 33, 0.1);
+    color: var(--gradient-start);
+    border-color: var(--gradient-start);
+  }
+
+  .hero-section {
+    @apply relative overflow-hidden py-20 md:py-32;
+    background: linear-gradient(135deg, #fff5eb 0%, #fff 100%);
+  }
+
+  .hero-section::before {
+    content: '';
+    @apply absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20;
+  }
+
+  .hero-content {
+    @apply relative z-10;
+  }
+
+  .hero-title {
+    @apply text-6xl font-black tracking-tight md:text-7xl lg:text-8xl leading-[1.1];
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-subtitle {
+    @apply mt-8 text-xl font-medium text-gray-600 md:text-2xl leading-relaxed;
+  }
+
+  .hero-buttons {
+    @apply mt-12 flex flex-col space-y-4 sm:flex-row sm:space-x-6 sm:space-y-0;
+  }
+
+  .feature-grid {
+    @apply mt-24 grid gap-8 md:grid-cols-3;
+  }
+
+  .feature-card {
+    @apply rounded-3xl border border-gray-100 bg-white p-8 shadow-lg transition-all hover:shadow-xl hover:scale-105 hover:border-primary/20;
+    background: linear-gradient(135deg, #fff 0%, #fff5eb 100%);
+  }
+
+  .feature-icon {
+    @apply mb-6 h-16 w-16 rounded-2xl p-3 text-white;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  }
+
+  .feature-title {
+    @apply mb-4 text-2xl font-bold;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .feature-description {
+    @apply text-lg text-gray-600 leading-relaxed;
+  }
+
+  .gradient-border {
+    @apply relative rounded-3xl;
+  }
+
+  .gradient-border::before {
+    content: '';
+    @apply absolute inset-0 rounded-3xl;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .participants-container {
+    @apply px-4;
+  }
+
+  .participants-header {
+    @apply flex justify-between items-center mb-4;
+  }
+
+  .people-counter {
+    @apply flex items-center space-x-3 bg-gray-100 rounded-full px-2 py-1;
+  }
+
+  .counter-button {
+    @apply w-8 h-8 flex items-center justify-center rounded-full text-gray-500 text-xl;
+  }
+
+  .split-button {
+    @apply bg-gray-100 text-primary font-medium py-2 px-4 rounded-md;
+  }
+
+  .participant-row {
+    @apply flex items-center space-x-4 bg-gray-100 p-4 rounded-lg mb-3;
+  }
+
+  .participant-input {
+    @apply bg-transparent w-full focus:outline-none text-gray-900 p-2;
+  }
+
+  .amount-input {
+    @apply bg-transparent focus:outline-none text-gray-900 text-right w-24 p-2;
+  }
+
+  .currency-input-container {
+    @apply flex flex-col items-center justify-center py-6;
+  }
+
+  .currency-input {
+    @apply bg-transparent text-center text-6xl font-bold focus:outline-none text-gray-900 w-full;
+  }
+
+  .currency-symbol {
+    @apply text-primary text-5xl font-bold mr-1;
+  }
+
+  .status-container {
+    @apply mx-4 mb-4;
+  }
+
+  .status-success {
+    @apply bg-green-50 text-green-600;
+  }
+
+  .status-error {
+    @apply bg-red-50 text-red-600;
+  }
+
+  .status-warning {
+    @apply bg-yellow-50 text-yellow-600;
+  }
+
+  .status-neutral {
+    @apply bg-gray-50 text-gray-600;
+  }
+}
+
+.text-light {
+  color: var(--text-light);
+}
+
+.section-padding {
+  @apply py-24;
+}
+
+.section-padding {
+  @apply py-24;
+}
+
+.hero-content {
+  @apply relative z-10;
+}
+
+.hero-subtitle {
+  @apply mt-8 text-xl font-medium text-gray-600 md:text-2xl leading-relaxed;
+}
+
+.hero-buttons {
+  @apply mt-12 flex flex-col space-y-4 sm:flex-row sm:space-x-6 sm:space-y-0;
+}
+
+.feature-grid {
+  @apply mt-24 grid gap-8 md:grid-cols-3;
+}
+
+.feature-card {
+  @apply rounded-3xl border border-gray-100 bg-white p-8 shadow-lg transition-all hover:shadow-xl hover:scale-105 hover:border-primary/20;
+  background: linear-gradient(135deg, #fff 0%, #fff5eb 100%);
+}
+
+.feature-icon {
+  @apply mb-6 h-16 w-16 rounded-2xl p-3 text-white;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+}
+
+.feature-title {
+  @apply mb-4 text-2xl font-bold;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.feature-description {
+  @apply text-lg text-gray-600 leading-relaxed;
 }
 
 input[type=number]::-webkit-inner-spin-button, 
@@ -29,4 +241,98 @@ input[type=number]::-webkit-outer-spin-button {
 
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+input:focus {
+  outline: none;
+}
+
+/* Custom styles to match Slush app */
+.app-container {
+  @apply max-w-md mx-auto bg-white min-h-screen flex flex-col;
+}
+
+.slush-header {
+  @apply bg-white border-b border-gray-100 p-6 flex items-center justify-between shadow-sm sticky top-0 z-50 backdrop-blur-lg bg-white/80;
+}
+
+.slush-logo {
+  @apply flex items-center;
+}
+
+.slush-btn {
+  @apply text-white font-bold py-4 px-8 rounded-2xl w-full transition-all hover:shadow-lg hover:translate-y-[-2px];
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+}
+
+.slush-btn:hover {
+  background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+}
+
+.slush-input {
+  @apply bg-gray-50 border border-gray-200 text-gray-900 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-lg transition-all;
+}
+
+.slush-card {
+  @apply bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all;
+}
+
+/* Tab navigation styles */
+.tab-nav {
+  @apply flex border-b border-[#2a2a2a] mb-6;
+}
+
+.tab-item {
+  @apply px-4 py-2 text-gray-400 cursor-pointer;
+}
+
+.tab-item.active {
+  @apply text-[#f26d21] border-b-2 border-[#f26d21];
+}
+
+/* Button styling */
+.primary-button {
+  @apply bg-[#f26d21] hover:bg-[#e25d11] text-white font-bold py-4 px-6 rounded-md w-full transition-colors text-lg;
+}
+
+.secondary-button {
+  @apply bg-[#2a2a2a] text-[#f26d21] font-medium py-2 px-4 rounded-md transition-colors;
+}
+
+.icon-button {
+  @apply flex items-center justify-center;
+}
+
+/* Footer area */
+.summary-container {
+  @apply px-4 mb-4;
+}
+
+.action-container {
+  @apply px-4 py-4 mt-auto;
+}
+
+/* Footer */
+.app-footer {
+  @apply bg-[#121212] p-4 text-center text-xs text-gray-500 border-t border-[#2a2a2a] mt-auto;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4000ms;
+}
+
+/* Add animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Add more modern styling */
+.glass-effect {
+  @apply backdrop-blur-lg bg-white/80;
 }
